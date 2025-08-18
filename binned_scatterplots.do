@@ -5,7 +5,7 @@ cap ado uninstall ftools
 net install ftools, from("https://raw.githubusercontent.com/sergiocorreia/ftools/master/src/")
 net install reghdfe, from("https://raw.githubusercontent.com/sergiocorreia/reghdfe/master/src/") replace
 ssc install ivreg2, replace
-net install ivreghdfe, from(https://raw.githubusercontent.com/sergiocorreia/ivreghdfe/master/src/) replace
+net install ivreghdfe, from("https://raw.githubusercontent.com/sergiocorreia/ivreghdfe/master/src/") replace
 
 * Set seed
 set seed 1234
@@ -123,4 +123,5 @@ if `my_pval' <= 0.01 {
 }
 reghdfe hsngval faminc pcturban popgrow, absorb(region division)
 predict hsngval_hat, xb
+
 binscatter2 rent hsngval_hat, controls(pcturban popgrow) absorb(region division) xti("Housing value") yti("Gross rent") title("Effect of house prices on rents", c(black)) xlab(, nogrid) ylab(, nogrid) mc(gs12) lc(black) n(30) note("Regression coefficient: `my_beta'`addstars'" "Standard error: `my_se'")
