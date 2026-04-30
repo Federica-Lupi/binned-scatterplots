@@ -1,11 +1,11 @@
 * Install packages
 ssc install gtools, replace
-net install binscatter2, from("https://raw.githubusercontent.com/mdroste/stata-binscatter2/master/") replace
-cap ado uninstall ftools
-net install ftools, from("https://raw.githubusercontent.com/sergiocorreia/ftools/master/src/")
-net install reghdfe, from("https://raw.githubusercontent.com/sergiocorreia/reghdfe/master/src/") replace
 ssc install ivreg2, replace
+net install ftools, from("https://raw.githubusercontent.com/sergiocorreia/ftools/master/src/") replace
+net install require, from("https://raw.githubusercontent.com/sergiocorreia/stata-require/master/src/") replace
+net install reghdfe, from("https://raw.githubusercontent.com/sergiocorreia/reghdfe/master/src/") replace
 net install ivreghdfe, from("https://raw.githubusercontent.com/sergiocorreia/ivreghdfe/master/src/") replace
+net install binscatter2, from("https://raw.githubusercontent.com/mdroste/stata-binscatter2/master/") replace
 
 * Set seed
 set seed 1234
