@@ -125,3 +125,5 @@ reghdfe hsngval faminc pcturban popgrow, absorb(region division)
 predict hsngval_hat, xb
 
 binscatter2 rent hsngval_hat, controls(pcturban popgrow) absorb(region division) xti("Housing value") yti("Gross rent") title("Effect of house prices on rents", c(black)) xlab(, nogrid) ylab(, nogrid) mc(gs12) lc(black) n(30) note("Regression coefficient: `my_beta'`addstars'" "Standard error: `my_se'")
+
+binscatter2 rent hsngval_hat, controls(pcturban popgrow) absorb(region division) xti("Housing value") yti("Gross rent") title("Effect of house prices on rents", c(black)) xlab(, format(%9.0gc) nogrid) ylab(, nogrid) mc(gs12) lc(black) n(30) note("Regression coefficient: `my_beta'`addstars'" "Standard error: `my_se'")
