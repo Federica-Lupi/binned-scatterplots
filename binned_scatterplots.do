@@ -6,6 +6,8 @@ net install require, from("https://raw.githubusercontent.com/sergiocorreia/stata
 net install reghdfe, from("https://raw.githubusercontent.com/sergiocorreia/reghdfe/master/src/") replace
 net install ivreghdfe, from("https://raw.githubusercontent.com/sergiocorreia/ivreghdfe/master/src/") replace
 net install binscatter2, from("https://raw.githubusercontent.com/mdroste/stata-binscatter2/master/") replace
+net install rdlocrand, from("https://raw.githubusercontent.com/rdpackages/rdlocrand/master/stata") replace
+net install rdrobust, from("https://raw.githubusercontent.com/rdpackages/rdrobust/master/stata") replace
 
 * Set seed
 set seed 1234
@@ -127,3 +129,52 @@ predict hsngval_hat, xb
 binscatter2 rent hsngval_hat, controls(pcturban popgrow) absorb(region division) xti("Housing value") yti("Gross rent") title("Effect of house prices on rents", c(black)) xlab(, nogrid) ylab(, nogrid) mc(gs12) lc(black) n(30) note("Regression coefficient: `my_beta'`addstars'" "Standard error: `my_se'")
 
 binscatter2 rent hsngval_hat, controls(pcturban popgrow) absorb(region division) xti("Housing value") yti("Gross rent") title("Effect of house prices on rents", c(black)) xlab(, format(%9.0gc) nogrid) ylab(, nogrid) mc(gs12) lc(black) n(30) note("Regression coefficient: `my_beta'`addstars'" "Standard error: `my_se'")
+
+* Binned scatterplots for regression discontinuity design
+
+clear
+set obs 100
+gen id_school = _n
+gen time = runiform(30,1000)
+replace time = round(time,1.0)
+tempfile schools
+save `schools'
+clear
+set obs 2500
+gen id_teach = _n
+gen id_school = 1
+forvalues i = 1(1)99 {
+	replace id_school = `i'+1 if id_teach > 25*`i'
+}
+merge m:1 id_school using `schools', nogen
+gen treat_time = (time > 120)
+gen female_drop = runiform()
+gen female = 0
+replace female = 1 if female_drop > 0.4
+drop female_drop
+gen uni_degree_drop = runiform()
+gen uni_degree = 0
+replace uni_degree = 1 if uni_degree_drop > 0.7
+drop uni_degree_drop
+gen wage = .
+replace wage = runiform(2000,2500) if treat_time == 0
+replace wage = runiform(2000,3500) if treat_time == 1
+replace wage = round(wage,1.0)
+gen competence_score = .
+replace competence_score = rnormal(100,25) if treat_time == 0
+replace competence_score = rnormal(120,25) if treat_time == 1
+replace competence_score = round(competence_score,1.0)
+
+binscatter2 wage time, rd(120) xla(, format(%9.0gc) nogrid) yla(, format(%9.0gc) nogrid) xti("Travel time by car from main city in region") yti("Wage")
+
+binscatter2 wage time, by(treat_time) msymbol(o o) xline(120) xla(, format(%9.0gc) nogrid) yla(, format(%9.0gc) nogrid) legend(pos(6) col(2) order(1 "Low wage bonus" 2 "High wage bonus")) xti("Travel time by car from main city in region") yti("Wage")
+
+rdwinselect time female uni_degree, cutoff(120) wmass
+local window_left = r(w_left)
+local window_right = r(w_right)
+
+binscatter2 competence_score time, rd(120) xline(`window_left' `window_right') xla(, format(%9.0gc) nogrid) yla(, nogrid) xti("Travel time by car from main city in region") yti("Competence score")
+
+binscatter2 competence_score time, by(treat_time) msymbol(o o) xline(`window_left' 120 `window_right') xla(, format(%9.0gc) nogrid) yla(, nogrid) legend(pos(6) col(2) order(1 "Low wage bonus" 2 "High wage bonus")) xti("Travel time by car from main city in region") yti("Competence score")
+
+rdplot competence_score time, c(120) masspoints(off) graph_options(xla(, format(%9.0gc) nogrid) yla(, nogrid) xti("Travel time by car from main city in region") yti("Competence score") title("") legend(off))
